@@ -1,0 +1,50 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-engineering
+  description: Owns the internal developer platform and agent-docs.
+spec:
+  type: team
+  profile:
+    displayName: Platform Engineering
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: developer-experience
+  description: Internal developer experience and software documentation platform.
+spec:
+  owner: group:default/platform-engineering
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: agent-docs-postgres
+  description: PostgreSQL 18 and pgvector durable evidence store.
+spec:
+  type: database
+  owner: group:default/platform-engineering
+  system: developer-experience
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agent-docs
+  title: Agent Documentation Generator
+  description: Evidence-backed Azure DevOps developer and business documentation generator.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - azure-devops
+    - documentation
+    - typescript
+    - azure-openai
+    - postgres
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/platform-engineering
+  system: developer-experience
+  dependsOn:
+    - resource:default/agent-docs-postgres

@@ -1,0 +1,33 @@
+schemaVersion: 1
+azureDevOps:
+  organization: https://dev.azure.com/example
+  project: example-project
+  repository: example-repository
+  historyFrom: "2025-01-01T00:00:00Z"
+  workItemTypes:
+    Epic: epic
+    Feature: feature
+    Requirement: requirement
+    User Story: user_story
+    Bug: bug
+  fields:
+    title: System.Title
+    description: System.Description
+    acceptanceCriteria: Microsoft.VSTS.Common.AcceptanceCriteria
+    state: System.State
+    tags: System.Tags
+    ownership: System.AssignedTo
+azureOpenAI:
+  endpoint: https://example.openai.azure.com
+  generationDeployment: agent-docs-generation
+  embeddingDeployment: agent-docs-embedding
+  embeddingDimensions: 1536
+source:
+  include:
+    - "**/*"
+  exclude: []
+  maxTextFileBytes: 1048576
+documentation:
+  root: generated-docs
+publication:
+  reviewers: []

@@ -1,0 +1,13 @@
+catalog:
+  locations:
+    - type: url
+      target: ${AGENT_DOCS_CATALOG_URL}
+
+techdocs:
+  builder: external
+  publisher:
+    type: azureBlobStorage
+    azureBlobStorage:
+      containerName: ${TECHDOCS_AZURE_BLOB_STORAGE_CONTAINER_NAME}
+      credentials:
+        accountName: ${TECHDOCS_AZURE_BLOB_STORAGE_ACCOUNT_NAME}

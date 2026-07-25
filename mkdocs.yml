@@ -1,0 +1,13 @@
+site_name: Agent Documentation Generator
+site_description: Production and operator documentation for agent-docs
+docs_dir: docs
+strict: true
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Operations: operations.md
+  - Security: security.md
+  - Backstage: backstage.md
+  - Disaster recovery: disaster-recovery.md
+plugins:
+  - techdocs-core

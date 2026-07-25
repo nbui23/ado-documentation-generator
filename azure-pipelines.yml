@@ -1,0 +1,62 @@
+trigger:
+  - main
+
+pr:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "24.x"
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.12"
+  - script: npm ci
+    displayName: Install locked dependencies
+  - script: npm audit --audit-level=high
+    displayName: Audit dependencies
+  - script: npm run format:check
+    displayName: Check formatting
+  - script: npm run lint
+    displayName: Lint
+  - script: npm run typecheck
+    displayName: Typecheck
+  - script: npm test
+    displayName: Unit, contract, and in-memory integration tests
+  - script: npm run test:database
+    displayName: Test PostgreSQL migrations and evidence persistence
+    env:
+      AGENT_DOCS_TESTCONTAINERS: "true"
+  - script: npm run build
+    displayName: Build application
+  - script: |
+      python -m pip install --disable-pip-version-check mkdocs-techdocs-core==1.7.0
+      mkdocs build --strict --site-dir "$(Build.ArtifactStagingDirectory)/techdocs"
+    displayName: Build Backstage TechDocs
+  - script: npm sbom --sbom-format cyclonedx --omit dev > "$(Build.ArtifactStagingDirectory)/agent-docs.cdx.json"
+    displayName: Generate CycloneDX SBOM
+  - script: |
+      docker build \
+        --build-arg VERSION="$(Build.BuildNumber)" \
+        --build-arg VCS_REF="$(Build.SourceVersion)" \
+        --tag agent-docs:$(Build.BuildId) .
+    displayName: Build production image
+  - script: |
+      docker run --rm \
+        --volume /var/run/docker.sock:/var/run/docker.sock \
+        aquasec/trivy:0.70.0@sha256:be1190afcb28352bfddc4ddeb71470835d16462af68d310f9f4bca710961a41e image \
+        --exit-code 1 \
+        --ignore-unfixed \
+        --severity HIGH,CRITICAL \
+        agent-docs:$(Build.BuildId)
+    displayName: Scan production image
+  - script: docker save agent-docs:$(Build.BuildId) | gzip > "$(Build.ArtifactStagingDirectory)/agent-docs-image.tar.gz"
+    displayName: Package verified image
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: "$(Build.ArtifactStagingDirectory)"
+      artifact: agent-docs-production
+    displayName: Publish image, SBOM, and TechDocs artifacts

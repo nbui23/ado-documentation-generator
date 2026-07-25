@@ -1,0 +1,6 @@
+.git
+.omx
+dist
+node_modules
+coverage
+generated-docs

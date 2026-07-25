@@ -1,0 +1,41 @@
+# agent-docs
+
+Production-oriented, evidence-backed documentation generation for Azure DevOps.
+
+## Quick start
+
+```sh
+npm ci
+npm run build
+node dist/cli/main.js init
+```
+
+Configure `.agent-docs.yaml`, set `DATABASE_URL`, authenticate through Microsoft Entra, then run:
+
+```sh
+node dist/cli/main.js db migrate
+node dist/cli/main.js validate
+node dist/cli/main.js run
+node dist/cli/main.js run --publish
+```
+
+`--publish` creates or updates one draft Azure DevOps documentation pull request. It never updates the target branch directly or auto-completes the PR.
+
+## Quality gates
+
+```sh
+npm run format:check
+npm run lint
+npm run typecheck
+npm run test:unit
+npm run test:contract
+npm run test:security
+AGENT_DOCS_TESTCONTAINERS=true npm run test:database
+npm run test:integration
+npm run build
+npm audit --audit-level=high
+```
+
+The database suite requires Docker or an explicit `DATABASE_URL`; CI runs it through Testcontainers. The live Azure sandbox gate additionally requires `AGENT_DOCS_E2E_ROOT` and is documented in [production operations](docs/operations.md).
+
+See the [TechDocs operator guide](docs/index.md), [production operations](docs/operations.md), and [security model](docs/security.md).
