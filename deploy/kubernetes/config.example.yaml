@@ -17,6 +17,18 @@ azureDevOps:
     state: System.State
     tags: System.Tags
     ownership: System.AssignedTo
+jira:
+  cloudId: 11111111-1111-1111-1111-111111111111
+  siteUrl: https://example.atlassian.net
+  jql: project = EXAMPLE
+  issueTypes:
+    Epic: epic
+    Feature: feature
+    Story: user_story
+    Task: requirement
+    Bug: bug
+  fields:
+    acceptanceCriteria: customfield_10042
 azureOpenAI:
   endpoint: https://example.openai.azure.com
   generationDeployment: agent-docs-generation

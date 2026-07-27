@@ -35,4 +35,27 @@ describe("trace contract", () => {
     expect(JSON.stringify(edges)).not.toContain("attacker");
     expect(JSON.stringify(edges)).not.toContain("forged");
   });
+
+  it("links work items mentioned directly by commits", () => {
+    const [edge] = normalizeTraceSnapshots(
+      [
+        {
+          sourceRef: "commit:abc",
+          revision: "abc",
+          sourceType: "commit",
+          locator: "abc",
+          pinnedUrl: "https://example.test/abc",
+          redactedContent: "EXAMPLE-1",
+          contentHash: "hash",
+          traceMetadata: { workItemIds: ["jira:EXAMPLE-1"] },
+        },
+      ],
+      ["evidence"],
+    );
+    expect(edge).toMatchObject({
+      kind: "work_item_commit",
+      from: { id: "jira:EXAMPLE-1" },
+      to: { id: "abc" },
+    });
+  });
 });

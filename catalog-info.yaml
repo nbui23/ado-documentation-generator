@@ -37,6 +37,8 @@ metadata:
     backstage.io/techdocs-ref: dir:.
   tags:
     - azure-devops
+    - atlassian
+    - jira
     - documentation
     - typescript
     - azure-openai

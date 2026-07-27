@@ -29,6 +29,14 @@ export function normalizeTraceSnapshots(
     }
     if (snapshot.sourceType === "commit") {
       const commitId = snapshot.sourceRef.replace(/^commit:/, "");
+      for (const workItemId of snapshot.traceMetadata?.workItemIds ?? []) {
+        edges.push({
+          kind: "work_item_commit",
+          from: { type: "work_item", id: String(workItemId) },
+          to: { type: "commit", id: commitId },
+          supportingEvidenceIds: [evidenceId],
+        });
+      }
       for (const path of snapshot.traceMetadata?.changedPaths ?? []) {
         edges.push({
           kind: "commit_file",

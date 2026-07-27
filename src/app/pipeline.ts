@@ -87,17 +87,25 @@ export async function runPipeline(
   await dependencies.recordStage?.("normalize/trace", {
     snapshotCount: delta.snapshots.length,
     tombstoneCount: delta.tombstones.length,
+    jiraSnapshotCount: delta.snapshots.filter((snapshot) =>
+      snapshot.sourceRef.startsWith("work-item:jira:"),
+    ).length,
+    jiraTombstoneCount: delta.tombstones.filter((tombstone) =>
+      tombstone.sourceRef.startsWith("work-item:jira:"),
+    ).length,
   });
   const edges = await dependencies.normalizeTrace(delta.snapshots, snapshotIds);
+  const replaceAll = options.full || delta.candidateCheckpoint.fullResync === true;
   const touchedNodeIds = [
-    ...delta.snapshots.map((snapshot) => snapshot.sourceRef),
+    ...delta.snapshots
+      .filter(
+        (snapshot) =>
+          replaceAll || snapshot.sourceType === "pull_request" || snapshot.sourceType === "commit",
+      )
+      .map((snapshot) => snapshot.sourceRef),
     ...delta.tombstones.map((tombstone) => tombstone.sourceRef),
   ].map((sourceRef) => sourceRef.replace(/^(work-item|pull-request|commit):/, ""));
-  await dependencies.store.replaceTraceProjection(
-    edges,
-    touchedNodeIds,
-    options.full || delta.candidateCheckpoint.fullResync === true,
-  );
+  await dependencies.store.replaceTraceProjection(edges, touchedNodeIds, replaceAll);
   const impact = await dependencies.planImpact([
     ...delta.snapshots.map((snapshot) => snapshot.sourceRef),
     ...delta.tombstones.map((tombstone) => tombstone.sourceRef),

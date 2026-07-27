@@ -85,4 +85,46 @@ describe("agentDocsConfigSchema", () => {
     configured.publication = { reviewers: ["3d6f0a1e-3677-4dd5-8b5e-b7954a02d62e"] };
     expect(agentDocsConfigSchema.parse(configured).publication.reviewers).toHaveLength(1);
   });
+
+  it("accepts optional Jira mappings with safe defaults", () => {
+    const configured = {
+      ...structuredClone(valid),
+      jira: {
+        cloudId: "cloud-id",
+        siteUrl: "https://example.atlassian.net",
+        jql: "project = EXAMPLE",
+        issueTypes: { Story: "user_story" },
+        fields: { acceptanceCriteria: "customfield_10042" },
+      },
+    };
+
+    const jira = agentDocsConfigSchema.parse(configured).jira;
+    expect(jira?.fields).toMatchObject({
+      title: "summary",
+      description: "description",
+      acceptanceCriteria: "customfield_10042",
+      state: "status",
+      tags: "labels",
+      ownership: "assignee",
+    });
+  });
+
+  it("rejects unsafe Jira sites and connector-owned ordering", () => {
+    for (const jira of [
+      {
+        cloudId: "cloud-id",
+        siteUrl: "https://example.test",
+        jql: "project = EXAMPLE",
+        issueTypes: { Story: "user_story" },
+      },
+      {
+        cloudId: "cloud-id",
+        siteUrl: "https://example.atlassian.net",
+        jql: "project = EXAMPLE ORDER BY updated",
+        issueTypes: { Story: "user_story" },
+      },
+    ]) {
+      expect(() => agentDocsConfigSchema.parse({ ...structuredClone(valid), jira })).toThrow();
+    }
+  });
 });

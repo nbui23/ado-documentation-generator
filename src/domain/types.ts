@@ -53,7 +53,7 @@ export interface TraceEndpoint {
 }
 
 export interface TraceEdge {
-  readonly kind: "work_item_pr" | "pr_commit" | "commit_file";
+  readonly kind: "work_item_pr" | "work_item_commit" | "pr_commit" | "commit_file";
   readonly from: TraceEndpoint;
   readonly to: TraceEndpoint;
   readonly supportingEvidenceIds: readonly string[];

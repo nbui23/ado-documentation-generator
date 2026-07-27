@@ -30,6 +30,19 @@ azureDevOps:
     state: System.State
     tags: System.Tags
     ownership: System.AssignedTo
+# Optional Jira Cloud supplement. Set ATLASSIAN_JIRA_TOKEN in the environment.
+# jira:
+#   cloudId: your-atlassian-cloud-id
+#   siteUrl: https://example.atlassian.net
+#   jql: project = EXAMPLE
+#   issueTypes:
+#     Epic: epic
+#     Feature: feature
+#     Story: user_story
+#     Task: requirement
+#     Bug: bug
+#   fields:
+#     acceptanceCriteria: customfield_10042
 azureOpenAI:
   endpoint: https://your-resource.openai.azure.com
   generationDeployment: documentation-generation

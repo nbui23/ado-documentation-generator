@@ -11,6 +11,23 @@ const fieldsSchema = z.object({
   ownership: z.string().min(1),
 });
 
+const jiraFieldsSchema = z
+  .object({
+    title: z.string().min(1).default("summary"),
+    description: z.string().min(1).default("description"),
+    acceptanceCriteria: z.string().min(1).optional(),
+    state: z.string().min(1).default("status"),
+    tags: z.string().min(1).default("labels"),
+    ownership: z.string().min(1).default("assignee"),
+  })
+  .default({
+    title: "summary",
+    description: "description",
+    state: "status",
+    tags: "labels",
+    ownership: "assignee",
+  });
+
 export const agentDocsConfigSchema = z.object({
   schemaVersion: z.literal(1),
   azureDevOps: z.object({
@@ -28,6 +45,27 @@ export const agentDocsConfigSchema = z.object({
       }),
     fields: fieldsSchema,
   }),
+  jira: z
+    .object({
+      cloudId: z.string().trim().min(1),
+      siteUrl: z.url().refine((value) => {
+        const url = new URL(value);
+        return url.protocol === "https:" && url.hostname.endsWith(".atlassian.net");
+      }, "Jira site URL must use an https://*.atlassian.net host"),
+      jql: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((value) => !/\border\s+by\b/i.test(value), "Jira JQL must not contain ORDER BY"),
+      issueTypes: z
+        .record(z.string().min(1), z.enum(workItemRoles))
+        .refine(
+          (mapping) => Object.keys(mapping).length > 0,
+          "Jira issue type mapping is required",
+        ),
+      fields: jiraFieldsSchema,
+    })
+    .optional(),
   azureOpenAI: z.object({
     endpoint: z.url().refine((value) => {
       const url = new URL(value);

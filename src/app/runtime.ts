@@ -7,6 +7,9 @@ import type { AgentDocsConfig } from "../config/schema.js";
 import { AzureDevOpsClient } from "../ado/client.js";
 import { normalizeTraceSnapshots } from "../ado/normalize.js";
 import { AzureDevOpsSourceConnector } from "../ado/source-connector.js";
+import { CompositeSourceConnector } from "../ingest/composite-source-connector.js";
+import { JiraClient, type JiraRetryEvent } from "../jira/client.js";
+import { JiraSourceConnector } from "../jira/source-connector.js";
 import { acquireRuntimeLock, createDatabase, probeDatabase } from "../db/database.js";
 import { PostgresEvidenceRetriever } from "../db/evidence-retriever.js";
 import { PostgresEvidenceStore } from "../db/evidence-store.js";
@@ -62,6 +65,30 @@ function providers(
   return { ado, openai };
 }
 
+function sourceConnector(
+  ado: AzureDevOpsClient,
+  config: AgentDocsConfig,
+  onJiraRetry?: (event: JiraRetryEvent) => void,
+) {
+  const azureDevOps = new AzureDevOpsSourceConnector(ado, config);
+  if (!config.jira) return azureDevOps;
+  const jira = new JiraSourceConnector(
+    new JiraClient(
+      config.jira.cloudId,
+      () => {
+        const token = process.env.ATLASSIAN_JIRA_TOKEN?.trim();
+        if (!token) throw new Error("ATLASSIAN_JIRA_TOKEN is required when Jira is configured");
+        return token;
+      },
+      fetch,
+      4,
+      onJiraRetry,
+    ),
+    config.jira,
+  );
+  return new CompositeSourceConnector(azureDevOps, jira);
+}
+
 export async function validateRuntime(
   config: AgentDocsConfig,
   options: { probeOpenAI?: boolean } = {},
@@ -70,7 +97,7 @@ export async function validateRuntime(
   try {
     await probeDatabase(db);
     const { ado, openai } = providers(config);
-    const source = new AzureDevOpsSourceConnector(ado, config);
+    const source = sourceConnector(ado, config);
     await source.validateAccess();
     const branch = await source.discoverDefaultBranch();
     await new AzureDevOpsPublisher(
@@ -171,7 +198,19 @@ export async function executeRuntime(
         "Azure DevOps request retry scheduled",
       );
     });
-    const source = new AzureDevOpsSourceConnector(ado, config);
+    const source = sourceConnector(ado, config, ({ status, attempt, delayMs }) => {
+      logger.warn(
+        {
+          runId: run.id,
+          provider: "jira",
+          retryClassification: status === 429 ? "rate_limit" : "server_error",
+          status,
+          attempt,
+          delayMs,
+        },
+        "Jira request retry scheduled",
+      );
+    });
     const branch = await source.discoverDefaultBranch();
     const targetBranchRef = `refs/heads/${branch.name}`;
     const store = new PostgresEvidenceStore(db);

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { normalizeTraceSnapshots } from "../../src/ado/normalize.js";
 import { runPipeline, type PipelineDependencies } from "../../src/app/pipeline.js";
 import type { SourceSnapshotInput } from "../../src/domain/types.js";
 
@@ -88,6 +89,66 @@ function dependencies(affectedSections: readonly string[]): PipelineDependencies
 }
 
 describe("pipeline integration", () => {
+  it("ingests mixed Jira and Azure history and records their direct trace", async () => {
+    const deps = dependencies(["business/traceability"]);
+    const jira: SourceSnapshotInput = {
+      sourceRef: "work-item:jira:DOC-7",
+      revision: "2026-01-02T00:00:00Z",
+      sourceType: "work_item",
+      locator: "Jira DOC-7",
+      pinnedUrl: "https://example.atlassian.net/browse/DOC-7",
+      redactedContent: "Customer-visible feature",
+      contentHash: "jira-hash",
+    };
+    const commit: SourceSnapshotInput = {
+      sourceRef: "commit:abc",
+      revision: "abc",
+      sourceType: "commit",
+      locator: "abc",
+      pinnedUrl: "https://dev.azure.com/example/commit/abc",
+      redactedContent: "DOC-7 implementation",
+      contentHash: "commit-hash",
+      traceMetadata: {
+        workItemIds: ["jira:DOC-7"],
+        changedPaths: ["/src/a.ts"],
+      },
+    };
+    vi.mocked(deps.source.fetchDelta).mockResolvedValue({
+      snapshots: [jira, commit],
+      tombstones: [],
+      candidateCheckpoint: { entities: {} },
+    });
+    vi.mocked(deps.store.appendSnapshots).mockResolvedValue(["jira-evidence", "commit-evidence"]);
+    vi.mocked(deps.normalizeTrace).mockImplementation((snapshots, ids) =>
+      Promise.resolve(normalizeTraceSnapshots(snapshots, ids)),
+    );
+
+    await runPipeline(deps, { full: false, publish: false, checkpoint: {} });
+
+    expect(deps.store.replaceTraceProjection).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "work_item_commit",
+          from: { type: "work_item", id: "jira:DOC-7" },
+          to: { type: "commit", id: "abc" },
+        }),
+      ]),
+      ["abc"],
+      false,
+    );
+  });
+
+  it("does not advance the checkpoint when a configured source fails", async () => {
+    const deps = dependencies([]);
+    vi.mocked(deps.source.fetchDelta).mockRejectedValue(new Error("Jira unavailable"));
+
+    await expect(
+      runPipeline(deps, { full: false, publish: false, checkpoint: {} }),
+    ).rejects.toThrow("Jira unavailable");
+    expect(deps.saveCheckpoint).not.toHaveBeenCalled();
+    expect(deps.publisher?.publish).not.toHaveBeenCalled();
+  });
+
   it("runs stages and checkpoints a dry run without publication", async () => {
     const deps = dependencies(["developer/overview"]);
     const result = await runPipeline(deps, { full: true, publish: false, checkpoint: null });
