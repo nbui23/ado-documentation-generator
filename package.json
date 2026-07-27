@@ -37,7 +37,7 @@
     "@azure/identity": "^4.11.1",
     "commander": "^14.0.0",
     "kysely": "^0.29.4",
-    "minimatch": "^10.1.1",
+    "minimatch": "^10.2.6",
     "openai": "^6.49.0",
     "pg": "^8.16.3",
     "pino": "^9.7.0",
