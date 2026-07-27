@@ -1,7 +1,25 @@
-# agent-docs
+# EDGAR
+
+**Evidence-Driven Generation for Azure Repositories**
 
 Production-oriented, evidence-backed documentation generation for Azure DevOps with optional
 Jira Cloud ticket and changelog evidence.
+
+> **Status:** Pre-1.0. The evidence and publication safety model is tested, but configuration and
+> generated-document structure may change before 1.0.
+
+EDGAR reads repository files, tests, work items, pull requests, commits, and existing
+documentation; generates separately targeted developer and business documentation; verifies every
+generated claim against exact source evidence; and publishes changes through a draft Azure DevOps
+pull request.
+
+## Requirements
+
+- Node.js 24
+- PostgreSQL 18 with pgvector 0.8.2
+- Microsoft Entra access to Azure DevOps and Azure OpenAI
+- Docker for the local database and database test suite
+- Optional Jira Cloud read access
 
 ## Quick start
 
@@ -11,7 +29,7 @@ npm run build
 node dist/cli/main.js init
 ```
 
-Configure `.agent-docs.yaml`, set `DATABASE_URL`, authenticate through Microsoft Entra, then run:
+Configure `.edgar.yaml`, set `DATABASE_URL`, authenticate through Microsoft Entra, then run:
 
 ```sh
 node dist/cli/main.js db migrate
@@ -35,12 +53,22 @@ npm run typecheck
 npm run test:unit
 npm run test:contract
 npm run test:security
-AGENT_DOCS_TESTCONTAINERS=true npm run test:database
+EDGAR_TESTCONTAINERS=true npm run test:database
 npm run test:integration
 npm run build
 npm audit --audit-level=high
 ```
 
-The database suite requires Docker or an explicit `DATABASE_URL`; CI runs it through Testcontainers. The live Azure sandbox gate additionally requires `AGENT_DOCS_E2E_ROOT` and is documented in [production operations](docs/operations.md).
+The database suite requires Docker or an explicit `DATABASE_URL`; CI runs it through Testcontainers. The live Azure sandbox gate additionally requires `EDGAR_E2E_ROOT` and is documented in [production operations](docs/operations.md).
 
 See the [TechDocs operator guide](docs/index.md), [production operations](docs/operations.md), and [security model](docs/security.md).
+
+## Contributing and support
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Use GitHub issues for
+sanitized bug reports and feature requests, [SUPPORT.md](SUPPORT.md) for support boundaries, and
+[SECURITY.md](SECURITY.md) for private vulnerability reporting.
+
+## License
+
+EDGAR is available under the [MIT License](LICENSE).

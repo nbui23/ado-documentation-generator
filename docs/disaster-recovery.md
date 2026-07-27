@@ -6,12 +6,12 @@ Set RPO and RTO according to the evidence-retention and documentation-publicatio
 
 ## Restore procedure
 
-1. Stop all `agent-docs` jobs.
+1. Stop all `edgar` jobs.
 2. Restore PostgreSQL to a new isolated instance.
 3. Deploy the same application version used at backup time.
 4. Run migrations only after the restored database is verified.
-5. Run `agent-docs validate`.
-6. Run a dry full resynchronization with `agent-docs run --full`.
+5. Run `edgar validate`.
+6. Run a dry full resynchronization with `edgar run --full`.
 7. Compare impacts and stored renders before re-enabling publication.
 
 Upstream source can reconstruct projections, but immutable retained snapshots, run history, manual-conflict state, and publication retry records depend on the database backup.

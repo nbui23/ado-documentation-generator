@@ -17,10 +17,16 @@
 Production egress should be restricted to:
 
 - `dev.azure.com`;
+- `api.atlassian.com` and the configured `*.atlassian.net` site when Jira is enabled;
 - the configured `*.openai.azure.com` or `*.services.ai.azure.com` endpoint;
 - PostgreSQL;
 - Microsoft Entra token endpoints;
 - required DNS and telemetry endpoints approved by the operator.
+
+Standard Kubernetes `NetworkPolicy` cannot restrict HTTPS by hostname. The reference policy permits
+TCP 443 and 5432 at the network layer; production platforms should apply an egress proxy, cloud
+firewall, or FQDN-aware CNI policy for the destinations above and the operator-owned PostgreSQL
+service.
 
 ## Incident response
 

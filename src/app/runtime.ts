@@ -3,7 +3,7 @@ import { OpenAI } from "openai";
 import { randomUUID } from "node:crypto";
 import { lstat, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
-import type { AgentDocsConfig } from "../config/schema.js";
+import type { EdgarConfig } from "../config/schema.js";
 import { AzureDevOpsClient } from "../ado/client.js";
 import { normalizeTraceSnapshots } from "../ado/normalize.js";
 import { AzureDevOpsSourceConnector } from "../ado/source-connector.js";
@@ -47,7 +47,7 @@ export function azureOpenAIBaseUrl(endpoint: string): string {
 }
 
 function providers(
-  config: AgentDocsConfig,
+  config: EdgarConfig,
   onAdoRetry?: ConstructorParameters<typeof AzureDevOpsClient>[4],
 ) {
   const credential = new DefaultAzureCredential();
@@ -67,7 +67,7 @@ function providers(
 
 function sourceConnector(
   ado: AzureDevOpsClient,
-  config: AgentDocsConfig,
+  config: EdgarConfig,
   onJiraRetry?: (event: JiraRetryEvent) => void,
 ) {
   const azureDevOps = new AzureDevOpsSourceConnector(ado, config);
@@ -90,7 +90,7 @@ function sourceConnector(
 }
 
 export async function validateRuntime(
-  config: AgentDocsConfig,
+  config: EdgarConfig,
   options: { probeOpenAI?: boolean } = {},
 ): Promise<void> {
   const db = createDatabase();
@@ -111,7 +111,7 @@ export async function validateRuntime(
     if (options.probeOpenAI !== false) {
       const embedding = await openai.embeddings.create({
         model: config.azureOpenAI.embeddingDeployment,
-        input: "agent-docs capability probe",
+        input: "EDGAR capability probe",
         dimensions: config.azureOpenAI.embeddingDimensions,
       });
       if (embedding.data[0]?.embedding.length !== config.azureOpenAI.embeddingDimensions) {
@@ -136,7 +136,7 @@ export async function validateRuntime(
 }
 
 export async function executeRuntime(
-  config: AgentDocsConfig,
+  config: EdgarConfig,
   options: { full: boolean; publish: boolean },
 ): Promise<{ runId: string; result: PipelineResult }> {
   const runtimeLock = await acquireRuntimeLock();
@@ -531,10 +531,7 @@ export async function executeRuntime(
   }
 }
 
-export async function loadStoredSection(
-  config: AgentDocsConfig,
-  sectionKey: string,
-): Promise<string> {
+export async function loadStoredSection(config: EdgarConfig, sectionKey: string): Promise<string> {
   const db = createDatabase();
   try {
     const row = await db
@@ -687,7 +684,7 @@ async function writeAtomicallyIfChanged(path: string, content: string): Promise<
     if (!isMissingPath(error)) throw error;
   }
   await mkdir(dirname(path), { recursive: true });
-  const temporary = `${path}.agent-docs-${randomUUID()}.tmp`;
+  const temporary = `${path}.edgar-${randomUUID()}.tmp`;
   let temporaryCreated = false;
   try {
     await writeFile(temporary, content, {

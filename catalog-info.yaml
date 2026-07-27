@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: platform-engineering
-  description: Owns the internal developer platform and agent-docs.
+  description: Owns the internal developer platform and EDGAR.
 spec:
   type: team
   profile:
@@ -20,8 +20,8 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: agent-docs-postgres
-  description: PostgreSQL 18 and pgvector durable evidence store.
+  name: edgar-postgres
+  description: PostgreSQL 18 and pgvector durable evidence store for EDGAR.
 spec:
   type: database
   owner: group:default/platform-engineering
@@ -30,9 +30,9 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: agent-docs
-  title: Agent Documentation Generator
-  description: Evidence-backed Azure DevOps developer and business documentation generator.
+  name: edgar
+  title: EDGAR
+  description: Evidence-Driven Generation for Azure Repositories.
   annotations:
     backstage.io/techdocs-ref: dir:.
   tags:
@@ -49,4 +49,4 @@ spec:
   owner: group:default/platform-engineering
   system: developer-experience
   dependsOn:
-    - resource:default/agent-docs-postgres
+    - resource:default/edgar-postgres

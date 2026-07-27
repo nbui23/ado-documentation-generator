@@ -24,7 +24,7 @@ interface PullRequest {
   readonly title?: string;
 }
 
-const LIFECYCLE_BRANCH_PREFIX = "refs/heads/agent-docs/";
+const LIFECYCLE_BRANCH_PREFIX = "refs/heads/edgar/";
 const PULL_REQUEST_TITLE = "Refresh generated documentation";
 const GIT_SECURITY_NAMESPACE = "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87";
 const REQUIRED_PUBLICATION_PERMISSIONS = 2 + 4 + 16 + 16_384;
@@ -199,7 +199,7 @@ export class AzureDevOpsPublisher implements Publisher {
     const discovered = await this.findActiveLifecyclePullRequest();
     if (verifiedActiveId !== undefined) {
       if (discovered && discovered.pullRequestId !== verifiedActiveId) {
-        throw new Error("Multiple active agent-docs pull requests found for the target branch");
+        throw new Error("Multiple active EDGAR pull requests found for the target branch");
       }
       return state;
     }
@@ -235,7 +235,7 @@ export class AzureDevOpsPublisher implements Publisher {
         pullRequest.sourceRefName?.startsWith(LIFECYCLE_BRANCH_PREFIX) === true,
     );
     if (managed.length > 1) {
-      throw new Error("Multiple active agent-docs pull requests found for the target branch");
+      throw new Error("Multiple active EDGAR pull requests found for the target branch");
     }
     return managed[0];
   }

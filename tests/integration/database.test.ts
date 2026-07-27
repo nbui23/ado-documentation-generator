@@ -15,7 +15,7 @@ import {
 import { loadIngestCheckpoint, saveIngestCheckpoint } from "../../src/db/checkpoint.js";
 
 const configuredDatabaseUrl = process.env.DATABASE_URL;
-const useTestcontainers = process.env.AGENT_DOCS_TESTCONTAINERS === "true";
+const useTestcontainers = process.env.EDGAR_TESTCONTAINERS === "true";
 const databaseSuite = configuredDatabaseUrl || useTestcontainers ? describe : describe.skip;
 
 databaseSuite("PostgreSQL persistence", () => {
@@ -29,14 +29,14 @@ databaseSuite("PostgreSQL persistence", () => {
         "pgvector/pgvector:0.8.2-pg18@sha256:42e7f6b4e1eceb02ff14e3e6bc6108bbe259abbe83879dc1845d0da1ddeb555d",
       )
         .withEnvironment({
-          POSTGRES_USER: "agent_docs",
+          POSTGRES_USER: "edgar",
           POSTGRES_PASSWORD: "integration-only-password",
-          POSTGRES_DB: "agent_docs",
+          POSTGRES_DB: "edgar",
         })
         .withExposedPorts(5432)
         .withWaitStrategy(Wait.forLogMessage(/database system is ready to accept connections/, 2))
         .start();
-      databaseUrl = `postgresql://agent_docs:integration-only-password@${container.getHost()}:${String(container.getMappedPort(5432))}/agent_docs`;
+      databaseUrl = `postgresql://edgar:integration-only-password@${container.getHost()}:${String(container.getMappedPort(5432))}/edgar`;
     }
     database = createDatabase(databaseUrl);
     await migrateToLatest(database);

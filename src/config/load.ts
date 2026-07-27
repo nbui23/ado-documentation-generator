@@ -1,14 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parse } from "yaml";
-import { agentDocsConfigSchema, type AgentDocsConfig } from "./schema.js";
+import { edgarConfigSchema, type EdgarConfig } from "./schema.js";
 
-export const CONFIG_FILE = ".agent-docs.yaml";
+export const CONFIG_FILE = ".edgar.yaml";
 
-export async function loadConfig(root = process.cwd()): Promise<AgentDocsConfig> {
+export async function loadConfig(root = process.cwd()): Promise<EdgarConfig> {
   const path = resolve(root, CONFIG_FILE);
   const content = await readFile(path, "utf8");
-  return agentDocsConfigSchema.parse(parse(content) as unknown);
+  return edgarConfigSchema.parse(parse(content) as unknown);
 }
 
 export const CONFIG_TEMPLATE = `schemaVersion: 1

@@ -1,5 +1,5 @@
-site_name: Agent Documentation Generator
-site_description: Production and operator documentation for agent-docs
+site_name: EDGAR
+site_description: Evidence-Driven Generation for Azure Repositories
 docs_dir: docs
 strict: true
 nav:

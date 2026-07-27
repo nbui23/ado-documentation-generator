@@ -1,11 +1,20 @@
 {
-  "name": "agent-docs",
+  "name": "edgar",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
-  "description": "Evidence-backed Azure DevOps documentation generator.",
+  "description": "EDGAR — Evidence-Driven Generation for Azure Repositories.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nbui23/ado-documentation-generator.git"
+  },
+  "homepage": "https://github.com/nbui23/ado-documentation-generator#readme",
+  "bugs": {
+    "url": "https://github.com/nbui23/ado-documentation-generator/issues"
+  },
   "bin": {
-    "agent-docs": "./dist/cli/main.js"
+    "edgar": "./dist/cli/main.js"
   },
   "engines": {
     "node": ">=24 <25"

@@ -83,7 +83,7 @@ describe("Azure DevOps publication contract", () => {
           Response.json({
             pullRequestId: 7,
             status: "active",
-            description: "Human intro\n\n<!-- agent-docs:start -->\nold\n<!-- agent-docs:end -->",
+            description: "Human intro\n\n<!-- edgar:start -->\nold\n<!-- edgar:end -->",
           }),
         );
       }
@@ -225,12 +225,12 @@ describe("Azure DevOps publication contract", () => {
       const method = init?.method ?? "GET";
       requests.push({ method, url });
       if (method === "GET" && url.includes("/refs")) {
-        const lifecycle = url.includes("agent-docs");
+        const lifecycle = url.includes("edgar");
         return Promise.resolve(
           Response.json({
             value: [
               {
-                name: lifecycle ? "refs/heads/agent-docs/existing" : "refs/heads/main",
+                name: lifecycle ? "refs/heads/edgar/existing" : "refs/heads/main",
                 objectId: lifecycle ? "lifecyclehead" : "targethead",
               },
             ],
@@ -244,7 +244,7 @@ describe("Azure DevOps publication contract", () => {
               {
                 pullRequestId: 9,
                 status: "active",
-                sourceRefName: "refs/heads/agent-docs/existing",
+                sourceRefName: "refs/heads/edgar/existing",
                 targetRefName: "refs/heads/main",
               },
             ],
@@ -282,7 +282,7 @@ describe("Azure DevOps publication contract", () => {
     const state = await publisher.publish({ "README.md": "generated" }, null);
 
     expect(state.pullRequestId).toBe(9);
-    expect(state.lifecycleBranch).toBe("refs/heads/agent-docs/existing");
+    expect(state.lifecycleBranch).toBe("refs/heads/edgar/existing");
     expect(requests.some(({ method, url }) => method === "POST" && url.includes("/refs"))).toBe(
       false,
     );
@@ -308,7 +308,7 @@ describe("Azure DevOps publication contract", () => {
             value: [1, 2].map((pullRequestId) => ({
               pullRequestId,
               status: "active",
-              sourceRefName: `refs/heads/agent-docs/${String(pullRequestId)}`,
+              sourceRefName: `refs/heads/edgar/${String(pullRequestId)}`,
               targetRefName: "refs/heads/main",
             })),
           }),
@@ -329,7 +329,7 @@ describe("Azure DevOps publication contract", () => {
     );
 
     await expect(publisher.publish({ "README.md": "generated" }, null)).rejects.toThrow(
-      "Multiple active agent-docs pull requests",
+      "Multiple active EDGAR pull requests",
     );
   });
 });

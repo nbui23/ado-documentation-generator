@@ -16,8 +16,8 @@ RUN npm ci --omit=dev --ignore-scripts \
     && mkdir /workspace \
     && chown node:node /workspace
 COPY --from=build /app/dist ./dist
-LABEL org.opencontainers.image.title="agent-docs" \
-      org.opencontainers.image.description="Evidence-backed Azure DevOps documentation generator" \
+LABEL org.opencontainers.image.title="EDGAR" \
+      org.opencontainers.image.description="Evidence-Driven Generation for Azure Repositories" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${VCS_REF}"
 USER node

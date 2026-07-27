@@ -1,15 +1,15 @@
-# Agent Documentation Generator
+# EDGAR
 
-`agent-docs` creates evidence-backed developer and business documentation for one Azure DevOps repository. It ingests immutable, redacted evidence; constructs explicit requirement-to-code trace links; generates citation-validated Markdown; and can maintain one draft documentation pull request.
+EDGAR — Evidence-Driven Generation for Azure Repositories — creates evidence-backed developer and business documentation for one Azure DevOps repository. It ingests immutable, redacted evidence; constructs explicit requirement-to-code trace links; generates citation-validated Markdown; and can maintain one draft documentation pull request.
 
 ## Operator workflow
 
-1. Create the configuration template with `agent-docs init`.
+1. Create the configuration template with `edgar init`.
 2. Set `DATABASE_URL` and configure Microsoft Entra credentials through the supported Azure Identity environment.
-3. Apply migrations with `agent-docs db migrate`.
-4. Run `agent-docs validate`.
-5. Execute a dry run with `agent-docs run`.
-6. Enable draft-PR publication with `agent-docs run --publish`.
+3. Apply migrations with `edgar db migrate`.
+4. Run `edgar validate`.
+5. Execute a dry run with `edgar run`.
+6. Enable draft-PR publication with `edgar run --publish`.
 
 The application never supports personal access tokens, writes directly to the target branch, force-pushes, or automatically completes pull requests.
 

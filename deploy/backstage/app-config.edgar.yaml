@@ -1,7 +1,7 @@
 catalog:
   locations:
     - type: url
-      target: ${AGENT_DOCS_CATALOG_URL}
+      target: ${EDGAR_CATALOG_URL}
 
 techdocs:
   builder: external

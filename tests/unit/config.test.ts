@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { agentDocsConfigSchema } from "../../src/config/schema.js";
+import { edgarConfigSchema } from "../../src/config/schema.js";
 
 const valid = {
   schemaVersion: 1,
@@ -35,9 +35,9 @@ const valid = {
   publication: { reviewers: [] as string[] },
 };
 
-describe("agentDocsConfigSchema", () => {
+describe("edgarConfigSchema", () => {
   it("defaults safe non-secret values", () => {
-    const config = agentDocsConfigSchema.parse(valid);
+    const config = edgarConfigSchema.parse(valid);
     expect(config.documentation.root).toBe("generated-docs");
     expect(config.source.maxTextFileBytes).toBe(1024 * 1024);
     expect(config.publication.reviewers).toEqual([]);
@@ -46,19 +46,19 @@ describe("agentDocsConfigSchema", () => {
   it("requires all canonical work item roles", () => {
     const invalid = structuredClone(valid);
     delete (invalid.azureDevOps.workItemTypes as Record<string, string>).Bug;
-    expect(() => agentDocsConfigSchema.parse(invalid)).toThrow(/Mappings must include/);
+    expect(() => edgarConfigSchema.parse(invalid)).toThrow(/Mappings must include/);
   });
 
   it("rejects non-TLS provider URLs", () => {
     const invalid = structuredClone(valid);
     invalid.azureOpenAI.endpoint = "http://example.test";
-    expect(() => agentDocsConfigSchema.parse(invalid)).toThrow();
+    expect(() => edgarConfigSchema.parse(invalid)).toThrow();
   });
 
   it("fixes the embedding dimension at 1536", () => {
     const invalid = structuredClone(valid);
     invalid.azureOpenAI.embeddingDimensions = 3072;
-    expect(() => agentDocsConfigSchema.parse(invalid)).toThrow();
+    expect(() => edgarConfigSchema.parse(invalid)).toThrow();
   });
 
   it("confines the documentation root to the repository", () => {
@@ -72,18 +72,18 @@ describe("agentDocsConfigSchema", () => {
     ]) {
       const invalid = structuredClone(valid);
       invalid.documentation = { root };
-      expect(() => agentDocsConfigSchema.parse(invalid)).toThrow(/repository-relative/);
+      expect(() => edgarConfigSchema.parse(invalid)).toThrow(/repository-relative/);
     }
   });
 
   it("accepts only Azure DevOps identity UUIDs as reviewers", () => {
     const invalid = structuredClone(valid);
     invalid.publication = { reviewers: ["reviewer@example.com"] };
-    expect(() => agentDocsConfigSchema.parse(invalid)).toThrow();
+    expect(() => edgarConfigSchema.parse(invalid)).toThrow();
 
     const configured = structuredClone(valid);
     configured.publication = { reviewers: ["3d6f0a1e-3677-4dd5-8b5e-b7954a02d62e"] };
-    expect(agentDocsConfigSchema.parse(configured).publication.reviewers).toHaveLength(1);
+    expect(edgarConfigSchema.parse(configured).publication.reviewers).toHaveLength(1);
   });
 
   it("accepts optional Jira mappings with safe defaults", () => {
@@ -98,7 +98,7 @@ describe("agentDocsConfigSchema", () => {
       },
     };
 
-    const jira = agentDocsConfigSchema.parse(configured).jira;
+    const jira = edgarConfigSchema.parse(configured).jira;
     expect(jira?.fields).toMatchObject({
       title: "summary",
       description: "description",
@@ -124,7 +124,7 @@ describe("agentDocsConfigSchema", () => {
         issueTypes: { Story: "user_story" },
       },
     ]) {
-      expect(() => agentDocsConfigSchema.parse({ ...structuredClone(valid), jira })).toThrow();
+      expect(() => edgarConfigSchema.parse({ ...structuredClone(valid), jira })).toThrow();
     }
   });
 });

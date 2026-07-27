@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { AzureDevOpsClient } from "../../src/ado/client.js";
 import { AzureDevOpsSourceConnector } from "../../src/ado/source-connector.js";
-import { agentDocsConfigSchema } from "../../src/config/schema.js";
+import { edgarConfigSchema } from "../../src/config/schema.js";
 
 describe("Azure DevOps source connector", () => {
   it("uses per-file revisions and ingests older PR-linked work items with canonical roles", async () => {
@@ -349,7 +349,7 @@ function delayedJson(body: unknown, delayMs: number, onSettled: () => void): Pro
 }
 
 function config() {
-  return agentDocsConfigSchema.parse({
+  return edgarConfigSchema.parse({
     schemaVersion: 1,
     azureDevOps: {
       organization: "https://dev.azure.com/example",

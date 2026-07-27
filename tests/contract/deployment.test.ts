@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { parseAllDocuments, parseDocument } from "yaml";
-import { agentDocsConfigSchema } from "../../src/config/schema.js";
+import { edgarConfigSchema } from "../../src/config/schema.js";
 
 describe("production deployment descriptors", () => {
   it("pins the database compatibility line and persists local development data", async () => {
@@ -12,9 +12,7 @@ describe("production deployment descriptors", () => {
     expect(compose.services.postgres.image).toMatch(
       /^pgvector\/pgvector:0\.8\.2-pg18@sha256:[a-f0-9]{64}$/,
     );
-    expect(compose.services.postgres.volumes).toContain(
-      "agent-docs-postgres:/var/lib/postgresql/data",
-    );
+    expect(compose.services.postgres.volumes).toContain("edgar-postgres:/var/lib/postgresql/data");
     expect(compose.services.postgres.healthcheck).toBeTruthy();
   });
 
@@ -43,7 +41,7 @@ describe("production deployment descriptors", () => {
       await readFile("deploy/kubernetes/config.example.yaml", "utf8"),
     ).toJS() as unknown;
 
-    expect(() => agentDocsConfigSchema.parse(config)).not.toThrow();
+    expect(() => edgarConfigSchema.parse(config)).not.toThrow();
     expect(JSON.stringify(config)).not.toMatch(/clientSecret|password|token/i);
   });
 
@@ -54,6 +52,36 @@ describe("production deployment descriptors", () => {
       await readFile("deploy/kubernetes/network-policy.yaml", "utf8"),
     ).map((document) => document.toJS() as { kind: string; spec: { ingress: unknown[] } });
     expect(policy).toMatchObject({ kind: "NetworkPolicy", spec: { ingress: [] } });
+  });
+
+  it("keeps contributor credentials out of git and Docker contexts", async () => {
+    for (const path of [".gitignore", ".dockerignore"]) {
+      const ignored = await readFile(path, "utf8");
+      for (const pattern of [".env", ".edgar.yaml", ".npmrc", ".netrc", "*.pem", "*.tfstate"]) {
+        expect(ignored).toContain(pattern);
+      }
+    }
+  });
+
+  it("ships public contribution and GitHub safety metadata", async () => {
+    for (const path of [
+      "CONTRIBUTING.md",
+      "CODE_OF_CONDUCT.md",
+      "SUPPORT.md",
+      "SECURITY.md",
+      "LICENSE",
+    ]) {
+      expect((await readFile(path, "utf8")).trim()).not.toBe("");
+    }
+    const packageMetadata = JSON.parse(await readFile("package.json", "utf8")) as {
+      private?: boolean;
+      license?: string;
+    };
+    expect(packageMetadata).toMatchObject({ private: true, license: "MIT" });
+    const workflow = await readFile(".github/workflows/ci.yml", "utf8");
+    expect(workflow).toContain("permissions:\n  contents: read");
+    expect(workflow).toMatch(/actions\/checkout@[a-f0-9]{40}/);
+    expect(workflow).toMatch(/actions\/setup-node@[a-f0-9]{40}/);
   });
 });
 

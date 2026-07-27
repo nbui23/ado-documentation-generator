@@ -28,7 +28,7 @@ const jiraFieldsSchema = z
     ownership: "assignee",
   });
 
-export const agentDocsConfigSchema = z.object({
+export const edgarConfigSchema = z.object({
   schemaVersion: z.literal(1),
   azureDevOps: z.object({
     organization: z.url().refine((value) => {
@@ -113,4 +113,4 @@ export const agentDocsConfigSchema = z.object({
     .default({ reviewers: [] }),
 });
 
-export type AgentDocsConfig = z.infer<typeof agentDocsConfigSchema>;
+export type EdgarConfig = z.infer<typeof edgarConfigSchema>;

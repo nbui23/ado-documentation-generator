@@ -2,17 +2,15 @@ import { accessSync, constants } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const targetRoot = resolve(process.env.AGENT_DOCS_E2E_ROOT ?? "");
+const targetRoot = resolve(process.env.EDGAR_E2E_ROOT ?? "");
 const cli = resolve(import.meta.dirname, "../dist/cli/main.js");
-const publish = process.env.AGENT_DOCS_E2E_PUBLISH === "true";
+const publish = process.env.EDGAR_E2E_PUBLISH === "true";
 
-if (!process.env.AGENT_DOCS_E2E_ROOT) {
-  fail(
-    "AGENT_DOCS_E2E_ROOT is required and must point to a dedicated Azure DevOps sandbox checkout",
-  );
+if (!process.env.EDGAR_E2E_ROOT) {
+  fail("EDGAR_E2E_ROOT is required and must point to a dedicated Azure DevOps sandbox checkout");
 }
 if (!process.env.DATABASE_URL) fail("DATABASE_URL is required");
-for (const path of [cli, resolve(targetRoot, ".agent-docs.yaml")]) {
+for (const path of [cli, resolve(targetRoot, ".edgar.yaml")]) {
   try {
     accessSync(path, constants.R_OK);
   } catch {
@@ -57,7 +55,7 @@ function run(args) {
   });
   if (result.status !== 0) {
     process.stderr.write(result.stderr);
-    fail(`agent-docs ${args.join(" ")} failed with exit code ${String(result.status)}`);
+    fail(`edgar ${args.join(" ")} failed with exit code ${String(result.status)}`);
   }
   return result.stdout;
 }
@@ -67,7 +65,7 @@ function runJson(args) {
   try {
     return JSON.parse(output);
   } catch {
-    fail(`agent-docs ${args.join(" ")} did not return valid JSON`);
+    fail(`edgar ${args.join(" ")} did not return valid JSON`);
   }
 }
 

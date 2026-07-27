@@ -31,8 +31,8 @@ jira:
     acceptanceCriteria: customfield_10042
 azureOpenAI:
   endpoint: https://example.openai.azure.com
-  generationDeployment: agent-docs-generation
-  embeddingDeployment: agent-docs-embedding
+  generationDeployment: edgar-generation
+  embeddingDeployment: edgar-embedding
   embeddingDimensions: 1536
 source:
   include:

@@ -2,7 +2,7 @@ import pino, { type DestinationStream, type Logger } from "pino";
 
 export function createLogger(destination?: DestinationStream): Logger {
   const options = {
-    name: "agent-docs",
+    name: "edgar",
     level: process.env.LOG_LEVEL ?? "info",
     redact: {
       paths: [

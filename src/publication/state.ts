@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import type { PublicationState } from "../domain/types.js";
 
-export const MANAGED_START = "<!-- agent-docs:start -->";
-export const MANAGED_END = "<!-- agent-docs:end -->";
+export const MANAGED_START = "<!-- edgar:start -->";
+export const MANAGED_END = "<!-- edgar:end -->";
 
 export function contentHash(content: string): string {
   return createHash("sha256").update(content).digest("hex");

@@ -10,7 +10,7 @@ describe("database production transport", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("DATABASE_REQUIRE_TLS", "true");
 
-    expect(() => createDatabase("postgresql://agent:password@db.example/agent_docs")).toThrow(
+    expect(() => createDatabase("postgresql://agent:password@db.example/edgar")).toThrow(
       /enable TLS/,
     );
   });
@@ -19,7 +19,7 @@ describe("database production transport", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("DATABASE_REQUIRE_TLS", "true");
     const database = createDatabase(
-      "postgresql://agent:password@db.example/agent_docs?sslmode=verify-full",
+      "postgresql://agent:password@db.example/edgar?sslmode=verify-full",
     );
 
     await database.destroy();

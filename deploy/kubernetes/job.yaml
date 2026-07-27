@@ -1,20 +1,20 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: agent-docs
+  name: edgar
   labels:
-    app.kubernetes.io/name: agent-docs
+    app.kubernetes.io/name: edgar
 spec:
   backoffLimit: 1
   ttlSecondsAfterFinished: 86400
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: agent-docs
+        app.kubernetes.io/name: edgar
         azure.workload.identity/use: "true"
     spec:
       restartPolicy: Never
-      serviceAccountName: agent-docs
+      serviceAccountName: edgar
       securityContext:
         runAsNonRoot: true
         fsGroup: 1000
@@ -23,13 +23,13 @@ spec:
           type: RuntimeDefault
       initContainers:
         - name: migrate
-          image: REPLACE_WITH_PINNED_AGENT_DOCS_IMAGE
+          image: REPLACE_WITH_PINNED_EDGAR_IMAGE
           args: ["db", "migrate"]
           env:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: agent-docs-database
+                  name: edgar-database
                   key: migrationDatabaseUrl
             - name: DATABASE_REQUIRE_TLS
               value: "true"
@@ -39,8 +39,8 @@ spec:
               drop: ["ALL"]
             readOnlyRootFilesystem: true
       containers:
-        - name: agent-docs
-          image: REPLACE_WITH_PINNED_AGENT_DOCS_IMAGE
+        - name: edgar
+          image: REPLACE_WITH_PINNED_EDGAR_IMAGE
           args: ["run"]
           workingDir: /workspace
           env:
@@ -49,13 +49,13 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: agent-docs-database
+                  name: edgar-database
                   key: runtimeDatabaseUrl
             - name: DATABASE_REQUIRE_TLS
               value: "true"
           envFrom:
             - secretRef:
-                name: agent-docs-identity
+                name: edgar-identity
                 optional: true
           resources:
             requests:
@@ -71,14 +71,14 @@ spec:
             readOnlyRootFilesystem: true
           volumeMounts:
             - name: config
-              mountPath: /workspace/.agent-docs.yaml
-              subPath: .agent-docs.yaml
+              mountPath: /workspace/.edgar.yaml
+              subPath: .edgar.yaml
               readOnly: true
             - name: generated-docs
               mountPath: /workspace/generated-docs
       volumes:
         - name: config
           configMap:
-            name: agent-docs
+            name: edgar
         - name: generated-docs
           emptyDir: {}

@@ -29,20 +29,20 @@ steps:
   - script: npm run test:database
     displayName: Test PostgreSQL migrations and evidence persistence
     env:
-      AGENT_DOCS_TESTCONTAINERS: "true"
+      EDGAR_TESTCONTAINERS: "true"
   - script: npm run build
     displayName: Build application
   - script: |
       python -m pip install --disable-pip-version-check mkdocs-techdocs-core==1.7.0
       mkdocs build --strict --site-dir "$(Build.ArtifactStagingDirectory)/techdocs"
     displayName: Build Backstage TechDocs
-  - script: npm sbom --sbom-format cyclonedx --omit dev > "$(Build.ArtifactStagingDirectory)/agent-docs.cdx.json"
+  - script: npm sbom --sbom-format cyclonedx --omit dev > "$(Build.ArtifactStagingDirectory)/edgar.cdx.json"
     displayName: Generate CycloneDX SBOM
   - script: |
       docker build \
         --build-arg VERSION="$(Build.BuildNumber)" \
         --build-arg VCS_REF="$(Build.SourceVersion)" \
-        --tag agent-docs:$(Build.BuildId) .
+        --tag edgar:$(Build.BuildId) .
     displayName: Build production image
   - script: |
       docker run --rm \
@@ -51,12 +51,12 @@ steps:
         --exit-code 1 \
         --ignore-unfixed \
         --severity HIGH,CRITICAL \
-        agent-docs:$(Build.BuildId)
+        edgar:$(Build.BuildId)
     displayName: Scan production image
-  - script: docker save agent-docs:$(Build.BuildId) | gzip > "$(Build.ArtifactStagingDirectory)/agent-docs-image.tar.gz"
+  - script: docker save edgar:$(Build.BuildId) | gzip > "$(Build.ArtifactStagingDirectory)/edgar-image.tar.gz"
     displayName: Package verified image
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: "$(Build.ArtifactStagingDirectory)"
-      artifact: agent-docs-production
+      artifact: edgar-production
     displayName: Publish image, SBOM, and TechDocs artifacts

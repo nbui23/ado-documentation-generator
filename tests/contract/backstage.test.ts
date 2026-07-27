@@ -8,7 +8,7 @@ describe("Backstage integration", () => {
     const catalog = await readFile(resolve("catalog-info.yaml"), "utf8");
     const entities = parseAllDocuments(catalog).map((document) => document.toJS() as Entity);
     const component = entities.find(
-      (entity) => entity.kind === "Component" && entity.metadata.name === "agent-docs",
+      (entity) => entity.kind === "Component" && entity.metadata.name === "edgar",
     );
 
     expect(component?.metadata.annotations?.["backstage.io/techdocs-ref"]).toBe("dir:.");
@@ -42,7 +42,7 @@ describe("Backstage integration", () => {
 
   it("ships a production external-builder overlay with durable Azure storage", async () => {
     const overlay = parseDocument(
-      await readFile(resolve("deploy/backstage/app-config.agent-docs.yaml"), "utf8"),
+      await readFile(resolve("deploy/backstage/app-config.edgar.yaml"), "utf8"),
     ).toJS() as {
       catalog: { locations: Array<{ type: string; target: string }> };
       techdocs: {
@@ -54,9 +54,7 @@ describe("Backstage integration", () => {
       };
     };
 
-    expect(overlay.catalog.locations).toEqual([
-      { type: "url", target: "${AGENT_DOCS_CATALOG_URL}" },
-    ]);
+    expect(overlay.catalog.locations).toEqual([{ type: "url", target: "${EDGAR_CATALOG_URL}" }]);
     expect(overlay.techdocs).toMatchObject({
       builder: "external",
       publisher: {

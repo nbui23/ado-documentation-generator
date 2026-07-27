@@ -1,5 +1,5 @@
 import type { AzureDevOpsClient } from "./client.js";
-import type { AgentDocsConfig } from "../config/schema.js";
+import type { EdgarConfig } from "../config/schema.js";
 import type { SourceConnector } from "../domain/ports.js";
 import type { SourceDeltaBatch, SourceSnapshotInput } from "../domain/types.js";
 import { hash } from "../evidence/fragments.js";
@@ -47,7 +47,7 @@ const PR_ENRICH_CONCURRENCY = 4;
 export class AzureDevOpsSourceConnector implements SourceConnector {
   public constructor(
     private readonly client: AzureDevOpsClient,
-    private readonly config: AgentDocsConfig,
+    private readonly config: EdgarConfig,
   ) {}
 
   public async validateAccess(): Promise<void> {

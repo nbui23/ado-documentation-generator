@@ -15,7 +15,7 @@ export function createDatabase(connectionString = process.env.DATABASE_URL): Kys
         max: poolSize,
         connectionTimeoutMillis: 10_000,
         idleTimeoutMillis: 30_000,
-        application_name: "agent-docs",
+        application_name: "edgar",
       }),
     }),
   });
@@ -34,15 +34,15 @@ export async function acquireRuntimeLock(
 ): Promise<RuntimeLock> {
   if (!connectionString) throw new Error("DATABASE_URL is required");
   assertDatabaseTransport(connectionString);
-  const client = new pg.Client({ connectionString, application_name: "agent-docs-lock" });
+  const client = new pg.Client({ connectionString, application_name: "edgar-lock" });
   await client.connect();
   try {
     const result = await client.query<{ acquired: boolean }>(
       "select pg_try_advisory_lock(hashtext($1)) as acquired",
-      ["agent-docs-run"],
+      ["edgar-run"],
     );
     if (result.rows[0]?.acquired !== true) {
-      throw new Error("Another agent-docs run is already active");
+      throw new Error("Another EDGAR run is already active");
     }
   } catch (error) {
     await client.end();
@@ -51,7 +51,7 @@ export async function acquireRuntimeLock(
   return {
     async release() {
       try {
-        await client.query("select pg_advisory_unlock(hashtext($1))", ["agent-docs-run"]);
+        await client.query("select pg_advisory_unlock(hashtext($1))", ["edgar-run"]);
       } finally {
         await client.end();
       }

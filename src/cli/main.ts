@@ -11,7 +11,7 @@ import { createLogger } from "../observability/logger.js";
 
 const logger = createLogger();
 const program = new Command()
-  .name("agent-docs")
+  .name("edgar")
   .description("Generate evidence-backed Azure DevOps documentation")
   .version("0.1.0");
 
