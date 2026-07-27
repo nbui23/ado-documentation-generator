@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@azure/identity": "^4.11.1",
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "kysely": "^0.29.4",
     "minimatch": "^10.1.1",
     "openai": "^6.49.0",
